@@ -25,7 +25,7 @@ public class Fighter {
     protected int health = 100;
     protected boolean isTakingDamage = false;
     protected float velocityY = 0;
-    protected float gravity = -0.3f;
+    protected float gravity = -0.25f;
 
     // Hitbox and attack range
     protected Rectangle hitbox;
@@ -90,15 +90,6 @@ public class Fighter {
 
 
 
-    private boolean isFacingLeft() {
-        return lastMoveDirection < 0; // If moving left, face left
-    }
-
-
-
-
-
-
 
     public void checkAttack(Fighter opponent) {
         // Only register a hit at a specific attack animation frame
@@ -119,12 +110,10 @@ public class Fighter {
 
 
 
-
-
     public void jump() {
         if (!isJumping && !isJumpAnimationPlaying) {
             isJumping = true;
-            velocityY = 9f;
+            velocityY = 9.5f;
         }
     }
 
