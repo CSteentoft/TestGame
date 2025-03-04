@@ -92,13 +92,13 @@ public class Fighter {
 
 
     public void checkAttack(Fighter opponent) {
-        // Only register a hit at a specific attack animation frame
-        int attackFrameIndex = attackAnimation.getKeyFrameIndex(stateTime);
+        if (isAttacking && !opponent.isTakingDamage) { // Prevent multiple hits per attack
+            int attackFrameIndex = attackAnimation.getKeyFrameIndex(stateTime);
 
-        if (isAttacking && !opponent.isTakingDamage) {
-            if (attackFrameIndex == 2 && attackBox.overlaps(opponent.hitbox)) { // Adjust frame number if needed
+            if (attackFrameIndex == 2 && attackBox.overlaps(opponent.hitbox)) { // Ensure correct frame timing
                 opponent.takeDamage(10);
                 opponent.isTakingDamage = true; // Prevents multiple hits per animation
+                System.out.println("Hit registered! Opponent health: " + opponent.getHealth());
             }
         }
 
@@ -107,6 +107,7 @@ public class Fighter {
             opponent.isTakingDamage = false;
         }
     }
+
 
 
 
@@ -150,12 +151,13 @@ public class Fighter {
     public void updateHitbox() {
         hitbox.set(position.x, position.y, 50, 100); // Base hitbox size
 
-        if (facingLeft) { // If facing left, adjust hitbox & attack box
+        if (facingLeft) { // Attack extends left
             attackBox.set(hitbox.x - 50, hitbox.y, 50, hitbox.height);
-        } else { // If facing right, adjust normally
+        } else { // Attack extends right
             attackBox.set(hitbox.x + hitbox.width, hitbox.y, 50, hitbox.height);
         }
     }
+
 
 
 

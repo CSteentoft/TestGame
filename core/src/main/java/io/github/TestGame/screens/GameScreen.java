@@ -1,6 +1,5 @@
 package io.github.TestGame.screens;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -10,24 +9,25 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import io.github.TestGame.Fighter.Fighter;
 import io.github.TestGame.Fighter.Player1;
 import io.github.TestGame.Fighter.Player2;
+import com.badlogic.gdx.Game;
 
 public class GameScreen implements Screen {
     private static final float VIRTUAL_WIDTH = 800;
     private static final float VIRTUAL_HEIGHT = 480;
 
+    private Game game;
     private SpriteBatch batch;
+    private Texture backgroundTexture;
+    private Texture healthBarTexture;
     private Player1 player1;
     private Player2 player2;
     private OrthographicCamera camera;
     private Viewport viewport;
-    private Texture backgroundTexture;
-    private Texture healthBarTexture;
 
-    @Override
-    public void show() {
+    public GameScreen(Game game) {
+        this.game = game;
         batch = new SpriteBatch();
 
         camera = new OrthographicCamera();
@@ -37,8 +37,9 @@ public class GameScreen implements Screen {
         camera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
         camera.update();
 
-        backgroundTexture = new Texture("assets/background.png");
-        healthBarTexture = new Texture("assets/white.png");
+        // Load textures
+        backgroundTexture = new Texture(Gdx.files.internal("assets/background.png"));
+        healthBarTexture = new Texture(Gdx.files.internal("assets/white.png")); // Ensure this file exists
 
         player1 = new Player1(new Vector2(150, 100), "assets/player1");
         player2 = new Player2(new Vector2(650, 100), "assets/player2");
@@ -76,9 +77,15 @@ public class GameScreen implements Screen {
     }
 
 
-    private void drawHealthBar(Fighter player, float x, float y) {
+    private void drawHealthBar(Player1 player, float x, float y) {
         float healthPercentage = (float) player.getHealth() / 100;
+        batch.setColor(1, 0, 0, 1);
+        batch.draw(healthBarTexture, x, y, 200 * healthPercentage, 10);
+        batch.setColor(1, 1, 1, 1);
+    }
 
+    private void drawHealthBar(Player2 player, float x, float y) {
+        float healthPercentage = (float) player.getHealth() / 100;
         batch.setColor(1, 0, 0, 1);
         batch.draw(healthBarTexture, x, y, 200 * healthPercentage, 10);
         batch.setColor(1, 1, 1, 1);
@@ -87,37 +94,11 @@ public class GameScreen implements Screen {
     private void checkGameOver() {
         if (player1.getHealth() <= 0) {
             System.out.println("Player 2 Wins!");
-            resetGame();
+            game.setScreen(new KOScreen(game));
         } else if (player2.getHealth() <= 0) {
             System.out.println("Player 1 Wins!");
-            resetGame();
+            game.setScreen(new KOScreen(game));
         }
-    }
-
-    private void resetGame() {
-        player1 = new Player1(new Vector2(150, 100), "assets/player1");
-        player2 = new Player2(new Vector2(650, 100), "assets/player2");
-    }
-
-
-    @Override
-    public void resize(int width, int height) {
-
-    }
-
-    @Override
-    public void pause() {
-
-    }
-
-    @Override
-    public void resume() {
-
-    }
-
-    @Override
-    public void hide() {
-
     }
 
     @Override
@@ -126,6 +107,22 @@ public class GameScreen implements Screen {
         backgroundTexture.dispose();
         healthBarTexture.dispose();
     }
-}
 
+    @Override
+    public void show() {}
+
+    @Override
+    public void resize(int width, int height) {
+        viewport.update(width, height);
+    }
+
+    @Override
+    public void pause() {}
+
+    @Override
+    public void resume() {}
+
+    @Override
+    public void hide() {}
+}
 
