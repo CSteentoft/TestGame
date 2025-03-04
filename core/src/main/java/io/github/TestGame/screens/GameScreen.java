@@ -23,8 +23,8 @@ public class GameScreen implements Screen {
     private Player2 player2;
     private OrthographicCamera camera;
     private Viewport viewport;
-
     private Texture backgroundTexture;
+    private Texture healthBarTexture;
 
     @Override
     public void show() {
@@ -37,20 +37,12 @@ public class GameScreen implements Screen {
         camera.position.set(VIRTUAL_WIDTH / 2, VIRTUAL_HEIGHT / 2, 0);
         camera.update();
 
-        // Load Background
         backgroundTexture = new Texture("assets/background.png");
+        healthBarTexture = new Texture("assets/white.png");
 
-        Texture player1Texture = new Texture("assets/players/player1.png");
-        Texture player1AttackTexture = new Texture("assets/players/attack/player1attack.png");
-
-        Texture player2Texture = new Texture("assets/players/player2.png");
-        Texture player2AttackTexture = new Texture("assets/players/attack/player2attack.png");
-
-        player1 = new Player1(new Vector2(150, 100), player1Texture, player1AttackTexture);
-        player2 = new Player2(new Vector2(650, 100), player2Texture, player2AttackTexture);
+        player1 = new Player1(new Vector2(150, 100), "assets/player1");
+        player2 = new Player2(new Vector2(650, 100), "assets/player2");
     }
-
-
 
     @Override
     public void render(float delta) {
@@ -60,25 +52,23 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
-
-        // Draw Background
         batch.draw(backgroundTexture, 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 
         player1.handleInput();
         player2.handleInput();
 
-        player1.update();
-        player2.update();
+        player1.update(delta);
+        player2.update(delta);
 
+        // Check if attacks hit the opponent
         player1.checkAttack(player2);
         player2.checkAttack(player1);
 
         player1.draw(batch);
         player2.draw(batch);
 
-        // Draw Health Bars
-        drawHealthBar(player1, 50, 440); // Left Side
-        drawHealthBar(player2, 550, 440); // Right Side
+        drawHealthBar(player1, 50, 440);
+        drawHealthBar(player2, 550, 440);
 
         batch.end();
 
@@ -86,43 +76,13 @@ public class GameScreen implements Screen {
     }
 
 
-    @Override
-    public void resize(int width, int height) {
-        viewport.update(width, height);
-        camera.position.set(camera.viewportWidth / 2, camera.viewportHeight / 2, 0);
-    }
-
-    @Override
-    public void pause() {}
-
-    @Override
-    public void resume() {}
-
-    @Override
-    public void hide() {}
-
-    @Override
-    public void dispose() {
-        batch.dispose();
-        backgroundTexture.dispose(); // Dispose the background to free memory
-    }
     private void drawHealthBar(Fighter player, float x, float y) {
         float healthPercentage = (float) player.getHealth() / 100;
 
-        // Health bar texture (1x1 white pixel stretched)
-        Texture healthTexture = new Texture("assets/white.png");
-
-        batch.setColor(1, 0, 0, 1); // Red color for health bar
-
-        if (player == player1) {
-            batch.draw(healthTexture, x, y, 200 * healthPercentage, 10); // Left side health bar
-        } else {
-            batch.draw(healthTexture, x + (200 - (200 * healthPercentage)), y, 200 * healthPercentage, 10); // Right side mirrored
-        }
-
-        batch.setColor(1, 1, 1, 1); // Reset color
+        batch.setColor(1, 0, 0, 1);
+        batch.draw(healthBarTexture, x, y, 200 * healthPercentage, 10);
+        batch.setColor(1, 1, 1, 1);
     }
-
 
     private void checkGameOver() {
         if (player1.getHealth() <= 0) {
@@ -135,13 +95,37 @@ public class GameScreen implements Screen {
     }
 
     private void resetGame() {
-        player1.setHealth(100);
-        player2.setHealth(100);
-        player1.setPosition(new Vector2(100, 100));
-        player2.setPosition(new Vector2(400, 100));
+        player1 = new Player1(new Vector2(150, 100), "assets/player1");
+        player2 = new Player2(new Vector2(650, 100), "assets/player2");
     }
 
 
+    @Override
+    public void resize(int width, int height) {
 
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
+    }
+
+    @Override
+    public void dispose() {
+        batch.dispose();
+        backgroundTexture.dispose();
+        healthBarTexture.dispose();
+    }
 }
+
 
